@@ -1,0 +1,6 @@
+# git ignores
+*~
+build
+.vscode
+Old
+project-config.json
