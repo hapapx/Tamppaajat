@@ -2,14 +2,14 @@
 !byte $0C, $08     ; seuraavan rivin osoite (low byte: $080C)
 !byte $00, $00     ; rivinumero 0
 !byte $9E          ; SYS-tokeni BASICissa
-!pet "49168"       ; SYS 49168 ASCIIna
+!pet "49184"       ; SYS 49168 ASCIIna
 !byte $00          ; rivin loppu
 !byte $00, $00     ; BASIC-ohjelman loppu (ei seuraavaa riviä)
 
 !src "src/bitituusi.asm"
 !src "src/varituusi.asm"
 
-*=$c010
+*=$c020
 
 alustus
 
@@ -346,7 +346,7 @@ kentantaustavarimuistiloop
 
 spritetesti
 
-    lda #$79    ; Spritejen 0-4 x-sijainnit ruudulle
+    lda #$86    ; Spritejen 0-4 x-sijainnit ruudulle
     sta $D000
     sta $D002
     sta $D004
@@ -399,12 +399,27 @@ spritetesti
 !byte $05,$16,$5a,$5a,$6a,$6a,$6a,$6a,      $01,$c6,$1a,$da,$1a,$da,$5a,$6a ; Vasen ylänurkka × 2, alkaa $1040
 !byte $6a,$5a,$da,$1a,$da,$1a,$c6,$01,      $6a,$6a,$6a,$6a,$5a,$1a,$16,$05 ; Vasen alanurkka × 2, alkaa $1050
 !byte $a9,$a5,$a7,$a4,$a7,$a4,$93,$40,      $a9,$a9,$a9,$a9,$a5,$a4,$94,$50 ; Oikea alanurkka × 2, alkaa $1060
-!byte 128,172,37,228,16,220,0,204,           40,201,4,204,0,204,0,204         ; Vihreätä kentälle, alkaa $1070
+!byte 128,172,37,228,16,220,0,204,           40,201,4,204,0,204,0,204       ; Vihreätä kentälle, alkaa $1070
 
 ; JALANJÄLJET
 ; 10 on lunta, 01 on jalanjälki
-!byte 60,252,255,255,255,255,63,60  ; Jalkaterä ylöspäin OR, $1080 - $1087
-!byte 215,87,85,85,85,85,213,215    ; Jalkaterä ylöspäin AND, $1088 - $108f
+!byte  48,240,252,252, 252,252,240, 48 ; Jalkaterä ylöspäin OR,  $1080 - $1087
+!byte 223, 95, 87, 87,  87, 87, 95,223 ; Jalkaterä ylöspäin AND, $1088 - $108f
+!byte  60, 60,252,255,  63, 60,  0,  0; Jalkaterä sivulle OR,  $1090 - $1097
+!byte 215,215, 87, 85, 213,215,255,255; Jalkaterä sivulle AND, $1098 - $109f
+!byte   0,240,252,255, 255, 63, 15,  0; Jalkaterä koillinen-lounas OR,  $10a0 - $10a7
+!byte 255, 95, 87, 85,  85,213,245,255; Jalkaterä koillinen-lounas AND, $10a8 - $10af
+!byte   0, 15, 63,255, 255,252,240,  0; Jalkaterä kaakko-luode OR, $10b0 - $10b7
+!byte 255,245,213, 85,  85, 87, 95,255; Jalkaterä kaakko-luode AND, $10b8 - $10bf
+
+;00110000
+;11110000
+;11111100
+;11111100
+;11111100
+;11111100
+;11110000
+;00110000
 
 ; SPRITET
 *=$4000

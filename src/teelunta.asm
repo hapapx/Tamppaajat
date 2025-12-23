@@ -170,7 +170,7 @@ lumenluontiluuppi
     ldx #$10    ; kpl rivikomponentteja
 normluuppiR
     lda $d012   ; Satunnaisluku
-    eor $dc04    
+    eor $dc04
     clc
     adc $c009
     sta $c009
