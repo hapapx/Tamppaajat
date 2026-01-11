@@ -4,6 +4,8 @@
 
 !src "src/jalanjaljet.asm"
 
+!src "src/paivitaPeitto.asm"
+
 jmp spriteliiketestiAlustus ; Ohita alla olevat funktiot
 
 spriteliiketestiAlustus

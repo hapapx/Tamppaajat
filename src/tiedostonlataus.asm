@@ -2,17 +2,85 @@
 !byte $0C, $08     ; seuraavan rivin osoite (low byte: $080C)
 !byte $00, $00     ; rivinumero 0
 !byte $9E          ; SYS-tokeni BASICissa
-!pet "49184"       ; SYS 49168 ASCIIna
+!pet "49200"       ; SYS 49200 ASCIIna
 !byte $00          ; rivin loppu
 !byte $00, $00     ; BASIC-ohjelman loppu (ei seuraavaa riviä)
 
 !src "src/bitituusi.asm"
 !src "src/varituusi.asm"
 
-*=$c020
+; Teksti: KENTTÄ
+*=$7630
+!byte 0,68,80,80,68,68,0,0
+!byte 0,81,65,81,65,81,0,0
+!byte 0,4,68,68,20,4,0,0
+!byte 0,84,16,16,16,16,0,0
+!byte 0,84,16,16,16,16,0,0
+!byte 0,68,16,68,84,68,0,0
+*=$5ec6 ; Värit
+!byte $77,$77,$77,$77,$77,$77
 
+; Teksti: PEITTO
+*=$78b0
+!byte 0,84,68,84,64,64,0,0
+!byte 0,81,65,81,65,81,0,0
+!byte 0,21,4,4,4,4,0,0
+!byte 0,21,4,4,4,4,0,0
+!byte 0,21,17,17,17,21,0,0
+*=$5f16 ; Värit
+!byte $77,$77,$77,$77,$77,$77
+
+; Peittomittarin reunat
+*=$79e8 ; Vasen reuna
+!byte 2,2,2,2,2,2,2,2
+*=$7a38 ; Oikea reuna
+!byte 128,128,128,128,128,128,128,128
+*=$7b30 ; Alareuna
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+*=$5f3d ; Peittomittarin reunojen ja palkin värit
+!byte $77,$75,$75,$75,$75,$75,$75,$75,$75,$75,$77
+*=$5f66
+!byte $77,$77,$77,$77,$77,$77,$77,$77,$77
+
+; Teksti: AIKA
+*=$7c70
+!byte 0,84,68,84,68,68,0,0
+!byte 0,68,69,69,68,68,0,0
+!byte 0,69,4,5,68,68,0,0
+!byte 0,64,64,64,64,64,0,0
+*=$5f8e ; Värit
+!byte $77,$77,$77,$77,$77
+
+; Aikamittarin reunat
+*=$7da8 ; Vasen reuna
+!byte 2,2,2,2,2,2,2,2
+*=$7df8 ; Oikea reuna
+!byte 128,128,128,128,128,128,128,128
+*=$7ef0 ; Alareuna
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+!byte 170,0,0,0,0,0,0,0
+*=$5fb5 ; Aikamittarin reunojen ja palkin värit
+!byte $77,$75,$75,$75,$75,$75,$75,$75,$75,$75,$77
+*=$5fde
+!byte $77,$77,$77,$77,$77,$77,$77,$77,$77
+
+*=$c030
 alustus
-
     lda #$7C    ; Screen memory
     sta 53272
     lda #2      ; Videopankki
@@ -412,14 +480,8 @@ spritetesti
 !byte   0, 15, 63,255, 255,252,240,  0; Jalkaterä kaakko-luode OR, $10b0 - $10b7
 !byte 255,245,213, 85,  85, 87, 95,255; Jalkaterä kaakko-luode AND, $10b8 - $10bf
 
-;00110000
-;11110000
-;11111100
-;11111100
-;11111100
-;11111100
-;11110000
-;00110000
+*=$10c0
+!byte 0,197,105,105,86,213,25,204,   0,204,96,164,164,232,36,204 ; Kiviä, alkaa $10c0
 
 ; SPRITET
 *=$4000

@@ -888,7 +888,7 @@ lumenhiontaOikeaAlakulmarivit
 ; 
 ; Koristellaan vielä kasveilla, kivillä yms.
 kivetJaKasvit
-    ldx #$10    ; Kasvien lukumäärä
+    ldx #$f0    ; Kasvien ja kivien  lukumäärä
     ; Arvotaan luku väliltä 0-$0398 (merkkien määrä ruudulla, ei eka eikä vika rivi)
 kivetJaKasvitArvonta
     lda $d012   ; Ylempi tavu, 0-3
@@ -921,14 +921,41 @@ kivetJaKasvitArvontaJatko
     ldy #$00
     lda ($fd),y
     cmp #$5d
-    bne kivetJaKasvitArvonta ; Tämä merkki ei taustaa, arvotaan uusi
-    ; Vaihda kenties vihreät keskenään
+    beq kivetJaKasvitMerkkiOk ; Tämä merkki ei taustaa, ei piirretä mitään
+    jmp kivetJaKasvitSeuraavako
+
+kivetJaKasvitMerkkiOk
+    ; Neljä vaihtoehtoa
+    ;   0 : Vihreä normaali
+    ;   1 : Vihreä käänteiset värit
+    ;   2 : Kivi normaali
+    ;   3 : Kivi käänteiset värit
+    ; Tallennetaan arvottu luku osoitteeseen $c000
     lda $d012
-    and #$01
-    bne kivetJaKasvitEiVihreänVaihtoa
-    lda #$d5
+    and #$03
+    sta $c000
+    cmp #$00
+    bne kivetJaKasvitVäri1
+    lda #$d5    ; Vihreät oikeinpäin
     sta ($fd),y
-kivetJaKasvitEiVihreänVaihtoa
+    jmp kivetJaKasvitPiirto
+kivetJaKasvitVäri1
+    cmp #$01
+    bne kivetJaKasvitVäri2
+    lda #$5d    ; Vihreät käänteisesti
+    sta ($fd),y
+    jmp kivetJaKasvitPiirto    
+kivetJaKasvitVäri2
+    cmp #$02
+    bne kivetJaKasvitVäri3
+    lda #$bc    ; Harmaat oikeinpäin
+    sta ($fd),y
+    jmp kivetJaKasvitPiirto
+kivetJaKasvitVäri3    
+    lda #$cb    ; Harmaat käänteisesti
+    sta ($fd),y    
+
+kivetJaKasvitPiirto
     ; Lasketaan vastaava grafiikkamuistin osoite ja kopioidaan sinne kasvi
     ; Kerrotaan alkuperäinen arvo kahdeksalla ja lisätään grafiikkamuistin alku
     asl $fc     ; × 2
@@ -953,23 +980,91 @@ kivetJaKasvitEiVihreänVaihtoa
     lda $fc     ; Lisää $6140 (toisen rivin alku)
     adc #$61
     sta $fc
-    lda #$10    ; Vihreän alku muistissa joko $1070 tai $1078
+
+    ; Vihreän alku muistissa joko $1070 tai $1078
+    ; Kiven alku muistissa joko $10c0 tai $10c8
+    lda #$10    
     sta $fe
+    lda $c000
+    cmp #$02
+    bcc kivetJaKasvitVihreänOsoite  ; Jos pienempi kuin 2, kyseessä vihreää
+    ; Kyseessä kivi
+    lda #$c0
+    sta $fd
+    lda $d012
+    and #$01
+    bne kivetJaKasvitGrafLoopUlko
+    lda #$c8    ; Toinen kivi
+    sta $fd
+    jmp kivetJaKasvitGrafLoopUlko
+
+kivetJaKasvitVihreänOsoite
     lda #$70
     sta $fd
     lda $d012
     and #$01
-    bne kivetJaKasvitEnsimmäinenKasvi
-    lda #$78
+    bne kivetJaKasvitGrafLoopUlko
+    lda #$78    ; Toinen kasvi
     sta $fd
-kivetJaKasvitEnsimmäinenKasvi
-    ldy #$07; Test
+    jmp kivetJaKasvitGrafLoopUlko
+
+kivetJaKasvitGrafLoopUlko
+    ldy #$07    ; Loopataan seitsemän bittiriviä
 kivetJaKasvitGrafLoop
     lda ($fd),y
     sta ($fb),y
     dey
     bpl kivetJaKasvitGrafLoop
+
+kivetJaKasvitSeuraavako
     dex         ; Arvotaanko vielä lisää?
-    bne kivetJaKasvitArvontaVäliaskel
+    beq kivetJaKasvitLumenLaskenta
+    jmp kivetJaKasvitArvontaVäliaskel
     
+kivetJaKasvitLumenLaskenta
+
+    ; Lasketaan vielä montako täysin valkeaa riviä on
+    ; Täysin valkea rivi on arvoltaan $aa
+    ; (Lasketaan yksinkertaisuuden vuoksi myös muista merkeistä kuin lumesta)
+    
+    lda #$00    ; Nollataan laskuri
+    sta $c020
+    sta $c021
+    
+    ldx #2      ; Loopataan 3. riviltä lähtien
+    lda #$80    ; Kolmannen rivin bittikartan alkuosoite on $6280
+    sta $fb
+    lda #$62
+    sta $fc
+valkeidenlaskuLoop
+    ldy #2    ; Loopataan 3. sarakkeelta lähtien
+    
+valkeidenlaskuLoopSisempi    
+    lda ($fb),y ; Tarkistetaan onko tavun arvo $aa
+    cmp #$aa
+    bne valkeidenlaskuLoopSisempiEiAA    
+    inc $c020   ; Tämä on aa, lisätään laskuria
+    bne valkeidenlaskuLoopSisempiEiAA ; Menikö laskurin alempi tavu ympäri?
+    inc $c021
+
+valkeidenlaskuLoopSisempiEiAA
+    iny         ; Loopataan 28. sarakkeelle asti eli 224 tavua
+    cpy #$e0
+    bne valkeidenlaskuLoopSisempi
+
+    inx         ; Loopataan  23. riville asti
+    cpx #24
+    beq kivetJaKasvitPoistu
+
+    ; Lisätään yksi rivi osoitteeseen
+    clc
+    lda #$40
+    adc $fb
+    sta $fb
+    lda #$01
+    adc $fc
+    sta $fc
+    jmp valkeidenlaskuLoop
+
+kivetJaKasvitPoistu
     jmp spriteliiketestiAlku ; Valmista, poistu
