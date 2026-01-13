@@ -1022,49 +1022,36 @@ kivetJaKasvitSeuraavako
     jmp kivetJaKasvitArvontaVäliaskel
     
 kivetJaKasvitLumenLaskenta
-
     ; Lasketaan vielä montako täysin valkeaa riviä on
     ; Täysin valkea rivi on arvoltaan $aa
-    ; (Lasketaan yksinkertaisuuden vuoksi myös muista merkeistä kuin lumesta)
-    
     lda #$00    ; Nollataan laskuri
     sta $c020
     sta $c021
+    lda #$aa    ; Laitetaan etsittävä arvo osoitteeseen $fd
+    sta $fd
+
+    lda #$02    ; Käydään läpi rivit 2-23
+    sta $c024
+kivetJaKasvitLumenLaskentaLoop
+    jsr laskeArvot
+    inc $c024
+    lda $c024
+    cmp #$22
+    sta $c024
+    bne kivetJaKasvitLumenLaskentaLoop
+
+    ; Siirretään määrä osoitteeseen $c022-c023
+    lda $c020
+    sta $c022
+    lda $c021
+    sta $c023
+
+    ; Nollataan laskuri
+    lda #$00    ; Nollataan laskuri
+    sta $c020
+    sta $c021
+    ; Aloitetaan jalanjälkien laskenta 3. riviltä
+    lda #$02
+    sta $c024
     
-    ldx #2      ; Loopataan 3. riviltä lähtien
-    lda #$80    ; Kolmannen rivin bittikartan alkuosoite on $6280
-    sta $fb
-    lda #$62
-    sta $fc
-valkeidenlaskuLoop
-    ldy #2    ; Loopataan 3. sarakkeelta lähtien
-    
-valkeidenlaskuLoopSisempi    
-    lda ($fb),y ; Tarkistetaan onko tavun arvo $aa
-    cmp #$aa
-    bne valkeidenlaskuLoopSisempiEiAA    
-    inc $c020   ; Tämä on aa, lisätään laskuria
-    bne valkeidenlaskuLoopSisempiEiAA ; Menikö laskurin alempi tavu ympäri?
-    inc $c021
-
-valkeidenlaskuLoopSisempiEiAA
-    iny         ; Loopataan 28. sarakkeelle asti eli 224 tavua
-    cpy #$e0
-    bne valkeidenlaskuLoopSisempi
-
-    inx         ; Loopataan  23. riville asti
-    cpx #24
-    beq kivetJaKasvitPoistu
-
-    ; Lisätään yksi rivi osoitteeseen
-    clc
-    lda #$40
-    adc $fb
-    sta $fb
-    lda #$01
-    adc $fc
-    sta $fc
-    jmp valkeidenlaskuLoop
-
-kivetJaKasvitPoistu
     jmp spriteliiketestiAlku ; Valmista, poistu

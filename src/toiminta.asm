@@ -1,12 +1,12 @@
 !src "src/tiedostonlataus.asm"
 
+!src "src/laskeArvot.asm"
+
 !src "src/teelunta.asm"
 
 !src "src/jalanjaljet.asm"
 
 !src "src/paivitaPeitto.asm"
-
-jmp spriteliiketestiAlustus ; Ohita alla olevat funktiot
 
 spriteliiketestiAlustus
 
@@ -22,19 +22,23 @@ spriteliiketestiAlku
     lda #$0f    ; Edellinen joystickin arvo
     sta $9001
 
-spriteliiketesti
+spriteliikeAlku
+
+jmp spriteliikeAlku2 ; Ohita ajankulutus
+
 ; Ajankulutuslooppi    
     ldx #$00
-spriteliiketestisub1
+AjankulutusSub1
     lda #$00
     clc
-spriteliiketestisub2
+AjankulutusSub2
     adc #$01
-    bcc spriteliiketestisub2
+    bcc AjankulutusSub2
     inx
-    cpx #$0A
-    bcc spriteliiketestisub1
+    cpx #$01
+    bcc AjankulutusSub1
 
+spriteliikeAlku2
     ; --- Jos joystickin arvo muuttunut, nollaa jalat
     ldy $DC00   ; Lataa nykyinen arvo
     tya
@@ -766,4 +770,10 @@ liikuLuoteeseenLoppu
 
 liiku
 
-    jmp jalanjaljet
+    ; Käy piirtämässä nykyisen sijainni jalanjäljet
+    jsr jalanjaljet
+
+    ; Päivitä tampatun lumen määrä
+    jsr paivitaPeitto
+
+    jmp spriteliikeAlku

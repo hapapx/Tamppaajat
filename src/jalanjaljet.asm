@@ -311,4 +311,4 @@ jalanjaljetKerto7b
     jmp jalanjaljetAlku
 
 jalanjaljetPoistu
-    jmp spriteliiketesti
+    rts
