@@ -159,7 +159,7 @@ grafiikkaarvoluuppi
     bpl grafiikkaarvoluuppi
 
 ; Luo y kappaletta lumia, osa voi olla samoissa kohdissa
-    ldy #$f0 ; kpl lumitäpliä
+    ldy #$20 ; kpl lumitäpliä
     sty $c00a
 lumenluontiluuppi
     ; Arvotaan rivejä
@@ -1022,32 +1022,36 @@ kivetJaKasvitSeuraavako
     jmp kivetJaKasvitArvontaVäliaskel
     
 kivetJaKasvitLumenLaskenta
-    ; Lasketaan vielä montako täysin valkeaa riviä on
-    ; Täysin valkea rivi on arvoltaan $aa
-    lda #$00    ; Nollataan laskuri
-    sta $c020
-    sta $c021
-    lda #$aa    ; Laitetaan etsittävä arvo osoitteeseen $fd
+
+    ; Lasketaan montako lumen väristä merkkiä on pelikentällä
+    lda #$f1
     sta $fd
-
-    lda #$02    ; Käydään läpi rivit 2-23
-    sta $c024
-kivetJaKasvitLumenLaskentaLoop
-    jsr laskeArvot
-    inc $c024
-    lda $c024
-    cmp #$22
-    sta $c024
-    bne kivetJaKasvitLumenLaskentaLoop
-
-    ; Siirretään määrä osoitteeseen $c022-c023
-    lda $c020
-    sta $c022
-    lda $c021
-    sta $c023
+    jsr laskeMerkit
+    ; Jaetaan kahdella niin mahtuu yhteen tavuun
+    clc
+    ror $c021
+    ror $c020
+    ; Jaetaan kahdeksalla niin saadaan yhden palkin pykälän edistymistä vastaava määrä
+    lsr $c020
+    lsr $c020
+    lsr $c020
+    ; Tallennetaan palkin edistymispisteet muistipaikkoihin $c028-$c02f
+    lda #$28
+    sta $fb
+    lda #$c0
+    sta $fc
+    ldy #$00
+    lda #$00
+teeluntaEdistymispalkinPykälät
+    clc
+    adc $c020
+    sta ($fb),y
+    iny
+    cpy #$08
+    bne teeluntaEdistymispalkinPykälät
 
     ; Nollataan laskuri
-    lda #$00    ; Nollataan laskuri
+    lda #$00    ; Nollataan laskuri jalanjälkiä varten
     sta $c020
     sta $c021
     ; Aloitetaan jalanjälkien laskenta 3. riviltä

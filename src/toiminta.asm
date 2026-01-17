@@ -8,6 +8,8 @@
 
 !src "src/paivitaPeitto.asm"
 
+!src "src/ajanlaskenta.asm"
+
 spriteliiketestiAlustus
 
     ; Lumitestaus
@@ -21,6 +23,9 @@ spriteliiketestiAlku
     sta $9000
     lda #$0f    ; Edellinen joystickin arvo
     sta $9001
+    ; Nollataan kello ja asetataan aikapalkin osoitin loppuun
+    jsr ajanlaskentaNollaKello
+    jsr ajanlaskentaAsetaPalkinLoppuun
 
 spriteliikeAlku
 
@@ -203,7 +208,7 @@ jtest2
     bne jtest3
 ; Onko jo liian alhaalla?
     lda $d003
-    cmp #$dc
+    cmp #$e4
     bcs jtest3
 ; --- Alas liikkuminen ---
     ; Aseta oikeat spriten pointterit
@@ -453,7 +458,7 @@ jtest5
 liikuLounaaseen0
 ; Onko jo liian alhaalla?
     lda $d003
-    cmp #$dc
+    cmp #$e4
     bcc liikuLounaaseen0a
     jmp jtest6
 liikuLounaaseen0a
@@ -562,7 +567,7 @@ jtest6
 liikuKaakkoon0
     ; Onko jo liian alhaalla?
     lda $d003
-    cmp #$dc
+    cmp #$e4
     bcc liikuKaakkoon0a
     jmp jtest7
 liikuKaakkoon0a
@@ -775,5 +780,8 @@ liiku
 
     ; Päivitä tampatun lumen määrä
     jsr paivitaPeitto
+
+    ; Päivitä aika
+    jsr ajanlaskentaPäivitäPalkki
 
     jmp spriteliikeAlku

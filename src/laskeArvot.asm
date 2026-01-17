@@ -1,9 +1,53 @@
+; Lasketaan tietyn väristen merkkien määeä pelikentältä
+; Etsittävä arvo oltava osoitteessa $fd
+; Tulos tallennetaan osoitteisiin $$c020-$c0211
+laskeMerkit
+
+    ; Nollataan laskuri
+    lda #$00
+    sta $c020
+    sta $c021
+
+    ; Lasketaan 3. riviltä 23. riville
+    lda #$50
+    sta $fb
+    lda #$5c
+    sta $fc
+laskeMerkitSisempi
+    ; Lasketaan 3. sarakkeelta lähtien 28. sarakkeelle asti
+    ldy #$02
+laskeMerkitSisin
+    lda ($fb),y
+    cmp $fd
+    bne laskeMerkitEiLunta
+    inc $c020
+    bne laskeMerkitEiLunta  ; Menikö laskuri ympäri?
+    inc $c021
+laskeMerkitEiLunta
+    iny
+    cpy #$1b
+    bne laskeMerkitSisin
+    clc         ; Lisätään rivi osoitteeseen
+    lda $fb
+    adc #$28
+    sta $fb
+    lda $fc
+    adc #$00
+    sta $fc
+    cmp #$5f
+    bne laskeMerkitSisempi
+    lda $fb
+    cmp #$98
+    bne laskeMerkitSisempi
+    rts         ; Valmista
+
 ; Lasketaan tavun arvot pelikentältä
 ; Lasketaan yksinkertaisuuden vuoksi myös muista merkeistä kuin lumesta
 ; Etsittävä arvo oltava osoitteessa $fd
 ; Rivi, joka lasketaan, on osoitteessa $c024
+; Tulos tallennetaan osoitteisiin $$c020-$c0211 (pienempi ensin)
 
-laskeArvot    
+laskeArvot
     
     ; Laitetaan laskettavan rivin alkuosoite $6000 nollasivuun $fb-$fc
     lda #$00
