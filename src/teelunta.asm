@@ -159,7 +159,7 @@ grafiikkaarvoluuppi
     bpl grafiikkaarvoluuppi
 
 ; Luo y kappaletta lumia, osa voi olla samoissa kohdissa
-    ldy #$20 ; kpl lumitäpliä
+    ldy #$10 ; kpl lumitäpliä
     sty $c00a
 lumenluontiluuppi
     ; Arvotaan rivejä

@@ -1,14 +1,10 @@
 !src "src/tiedostonlataus.asm"
-
 !src "src/laskeArvot.asm"
-
 !src "src/teelunta.asm"
-
 !src "src/jalanjaljet.asm"
-
 !src "src/paivitaPeitto.asm"
-
 !src "src/ajanlaskenta.asm"
+!src "src/kentanLoppu.asm"
 
 spriteliiketestiAlustus
 

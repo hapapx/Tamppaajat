@@ -44,9 +44,9 @@ paivitaPeittoPalkinpykälät
     lda #$75                            ; Värjää merkki. 
     sta ($fd),y
     iny
-    cpy #$08
+    cpy #$02 ;#$08
     bne paivitaPeittoPalkinpykälät      ; Seuraava, jos palkki ei ole täynnä
-    lda #$00    ; Tässä kenttä loppuisi    
+    jmp kentanLoppuValmis               ; Tässä kenttä loppuisi    
     
 paivitaPeittoAloitetaanAlusta
     ; Nollataan laskuri

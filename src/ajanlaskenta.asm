@@ -15,7 +15,8 @@ ajanlaskentaAsetaPalkinLoppuun
 
 ajanlaskentaPäivitäPalkki
     lda $a1; Onko kello yli?
-    bne ajanlaskentaPäivitäPalkkiSeuraavaAskel
+    cmp #$02
+    beq ajanlaskentaPäivitäPalkkiSeuraavaAskel
     rts
 ajanlaskentaPäivitäPalkkiSeuraavaAskel
     ldy $c022
