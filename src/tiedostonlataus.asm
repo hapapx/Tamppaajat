@@ -11,14 +11,15 @@
 
 ; Teksti: KENTTÄ
 *=$7630
-!byte 0,68,80,80,68,68,0,0
-!byte 0,81,65,81,65,81,0,0
-!byte 0,4,68,68,20,4,0,0
-!byte 0,84,16,16,16,16,0,0
-!byte 0,84,16,16,16,16,0,0
-!byte 0,68,16,68,84,68,0,0
+!byte 170,102,90,90,102,102,170,170
+!byte 170,89,105,89,105,89,170,170
+!byte 170,166,102,102,150,166,170,170
+!byte 170,86,154,154,154,154,170,170
+!byte 170,86,154,154,154,154,170,170
+!byte 170,102,154,102,86,102,170,170
 *=$5ec6 ; Värit
-!byte $77,$77,$77,$77,$77,$77
+!byte $70,$70,$70,$70,$70,$70
+!byte $00,$70,$70   ; Nämä numeroille
 
 ; Teksti: TAMPATTU
 *=$78b0
@@ -112,8 +113,6 @@ alustus
     sta $D021   ; Tausta mustaksi
 
 latausuusi
-
-    ; jsr varikierros1 ; Ohita lataus
 
     jsr bitituusi_kovakoodattu
 
@@ -369,100 +368,6 @@ kopiylinalinBit
     cpy #$e8
     bne kopiylinalinBit
 
-; Kentän taustan ruskeat pisteet värimuistista
-kentantausta    
-    lda #$48 ; $6148 grafiikkamuistin 2. rivi ja 2. sarake
-    sta $fb
-    lda #$61
-    sta $fc
-    ldy #$00
-    ldx #$00
-kentantaustaloop
-    inx ; Joka toinen grafiikkarivi musta, joka toinen #$cc
-    txa
-    and #$01
-    beq variruskea
-    lda #$00
-    jmp kentantaustaloopsisin
-variruskea
-    lda #$cc
-kentantaustaloopsisin
-    sta ($fb),y
-    iny
-    cpy #$d8
-    bne kentantaustaloop
-    ldy #$00
-    lda $fb
-    clc
-    adc #$40
-    sta $fb
-    lda $fc
-    adc #$01
-    sta $fc
-    cmp #$7e ; Pysähdy toiseksi viimeiselle riville osoitteeseen $7e08
-    bne kentantaustaloop
-
-; Värimuistin arvot kentän taustalle ruskeiksi
-kentantaustavarimuisti
-    lda #$29 ; $d829 värimuistin 2. rivi ja 2. sarake
-    sta $fb
-    lda #$d8
-    sta $fc
-    ldy #$00
-kentantaustavarimuistiloop
-    lda #$f0
-    and ($fb),y
-    ora #$09 ; ruskea
-    sta ($fb),y
-    iny
-    cpy #$1c
-    bne kentantaustavarimuistiloop
-    ldy #$00
-    lda $fb
-    clc
-    adc #$28
-    sta $fb
-    lda $fc
-    adc #$00
-    sta $fc    
-    cmp #$db ; Pysähdy toiseksi viimeiselle riville osoitteeseen $dbc1
-    bne kentantaustavarimuistiloop
-    lda $fb
-    cmp #$c1 ; Pysähdy toiseksi viimeiselle riville osoitteeseen $dbc1
-    bne kentantaustavarimuistiloop
-
-spritetesti
-
-    lda #$86    ; Spritejen 0-4 x-sijainnit ruudulle
-    sta $D000
-    sta $D002
-    sta $D004
-    sta $D006
-    sta $D008
-    lda #$00    ; Ylimmät x-bitit nolliksi
-    sta $D010
-    lda #$83    ; Spritejen 0-4 y-sijainnit ruudulle
-    sta $D001
-    sta $D003
-    sta $D005
-    sta $D007
-    sta $D009
-    
-    lda #$1f    ; Spritet 0-4 päälle, muut pois
-    sta $D015 
-
-    ; Spritejen 0-4 pointterit
-    lda #$03    ; Kasvot
-    sta $5FF8
-    lda #$01    ; Pipa
-    sta $5FF9
-    lda #$00    ; Takki
-    sta $5FFA
-    lda #$02    ; Vasen jalka
-    sta $5FFB
-    lda #$05    ; Oikae jalka
-    sta $5FFC
-    
     ; Spritejen värit
     lda #$09 // Takki, Unique Colour :9
     sta $D029
@@ -475,7 +380,23 @@ spritetesti
     lda #$02 // Oikea kengä, Unique Colour :2
     sta $D02B
 
-    jmp spriteliiketestiAlustus
+    ; Painonappi-sprite
+    ; Spritejen 5 ja 6 pointterit
+    lda #$15    ; Musta tausta
+    sta $5FFe
+    lda #$16    ; Punainen ylhäällä
+    sta $5FFd
+    ; Spritejen 5 ja 6 värit
+    lda #$00 // Musta
+    sta $D02d
+    lda #$02 // Punainen
+    sta $D02c
+
+    ; Asetaaan kentäksi 01
+    lda #$01
+    sta $c025
+
+    jmp toimintaAloitaUusiKentta
 
 ; LUMIGRAFIIKKA
 *=$1000
@@ -503,12 +424,12 @@ spritetesti
 !byte 0,197,105,105,86,213,25,204,   0,204,96,164,164,232,36,204 ; Kiviä, alkaa $10c0
 
 *=$10d0 ; Tekstitaulun reunat
-!byte 21,64,64,64,64,66,74,73           ; ylävasen, alkaa  $10d0
+!byte 21,64,64,64,64,66,74,73     ; ylävasen, alkaa  $10d0
 !byte 85,0,0,0,0,170,170,85       ; ylä              $10d8
 !byte 84,1,1,1,1,129,161,97       ; yläoikea         $10e0
-!byte 73,73,73,73,73,73,73,73            ; vasen            $10e8
-!byte 97,97,97,97,97,97,97,97    ; oikea            $10f0
-!byte 73,74,66,64,64,64,64,21           ; alavasen         $10f8
+!byte 73,73,73,73,73,73,73,73     ; vasen            $10e8
+!byte 97,97,97,97,97,97,97,97     ; oikea            $10f0
+!byte 73,74,66,64,64,64,64,21     ; alavasen         $10f8
 !byte 85,170,170,0,0,0,0,85       ; ala              $1100
 !byte 97,161,129,1,1,1,1,84       ; alaoikea         $1108
 
@@ -528,7 +449,19 @@ spritetesti
 !byte $AA, $66, $66, $66, $66, $66, $AA, $AA
 !byte $AA, $56, $6A, $56, $A6, $56, $AA, $AA
 !byte $AA, $6A, $6A, $6A, $AA, $6A, $AA, $AA
-;*=$1180 ; Seuraava
+*=$1180; Numerot 0-9
+!byte 170,149,153,153,153,149,170,170
+!byte 170,166,166,166,166,166,170,170
+!byte 170,149,169,149,154,149,170,170
+!byte 170,149,169,165,169,149,170,170
+!byte 170,153,153,149,169,169,170,170
+!byte 170,149,154,149,169,149,170,170
+!byte 170,150,154,149,153,149,170,170
+!byte 170,149,169,165,169,169,170,170
+!byte 170,149,153,149,153,149,170,170
+!byte 170,149,153,149,169,165,170,170
+; =$11d0
+
 
 ; SPRITET
 *=$4000
@@ -581,6 +514,16 @@ spritetesti
 !byte 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 128, 000, 007, 096, 000, 003, 224, 000, 002, 192, 000, 001, 128, 000, 000, 128, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000
 ; 14: Oikea kenkä
 !byte 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 064, 000, 000, 224, 000, 003, 224, 000, 063, 224, 000, 127, 128, 000, 127, 000, 000, 062, 000, 000, 062, 000, 000, 008, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000
+
+; --- Painonappi
+; 15: Musta tausta
+!byte 000, 255, 128, 003, 255, 128, 007, 255, 192, 007, 255, 224, 007, 255, 224, 015, 255, 240, 023, 255, 232, 063, 255, 252, 063, 255, 252, 063, 255, 252, 063, 255, 248, 031, 255, 240, 007, 255, 224, 000, 255, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000
+; 16: Punainen ylhäällä
+!byte 000, 000, 000, 001, 255, 000, 003, 255, 128, 000, 126, 064, 003, 129, 192, 003, 255, 192, 011, 255, 208, 027, 255, 216, 027, 255, 216, 028, 126, 056, 015, 129, 240, 003, 255, 192, 000, 126, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000
+; 17: Punainen alhaalla
+!byte 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 255, 000, 003, 128, 192, 004, 062, 096, 013, 255, 176, 027, 255, 216, 027, 255, 152, 028, 126, 056, 015, 129, 240, 003, 255, 192, 000, 126, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000
+; 18: Musta tausta alhaalla
+!byte 000, 000, 000, 000, 000, 000, 000, 255, 000, 003, 255, 192, 015, 255, 224, 015, 255, 240, 031, 255, 248, 063, 255, 252, 063, 255, 252, 063, 255, 252, 063, 255, 248, 031, 255, 240, 007, 255, 224, 000, 255, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000, 000
 
 ; Taustagrafiikka 
 filenamebitit !pet "bitituusi.bin"

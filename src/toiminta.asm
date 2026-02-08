@@ -5,14 +5,15 @@
 !src "src/paivitaPeitto.asm"
 !src "src/ajanlaskenta.asm"
 !src "src/kentanLoppu.asm"
+!src "src/uusiKentta.asm"
 
-spriteliiketestiAlustus
+toimintaAloitaUusiKentta
 
-    ; Lumitestaus
-    jmp luntaKentalle
+    ; Alustetaan uusi tyhjä kenttä
+    jsr uusiKentta
 
-ikuinenLuuppi
-    jmp ikuinenLuuppi
+    ; Luodaan lunta kentän tasoa vastaava määrä
+    jsr luntaKentalle
 
 spriteliiketestiAlku
     lda #$00    ; Animaation vaihe nollaksi

@@ -1,10 +1,9 @@
 ajanlaskentaNollaKello
     sei         ; Nollataan kello
-    lda #0
+    lda #$00
     sta $a0     ; TI_LO
     sta $a1     ; TI_MI
-    ; sta $a2     ; TI_HI
-    ; sta $a3     ; TI_HOURS
+    sta $a2     ; TI_HI
     cli
     rts
 

@@ -1,129 +1,246 @@
-; Alifunktio kopioi y tavua osoiteesta ($fb) osoitteeseen ($fd)
-kentanLoppuTampaxiKopioiYTavua
-    dey     ; Eka pois, koska loopataan (y-1):stä nollaan
-kentanLoppuTampaxiKopioiYTavuaLoop
+; Alifunktio: Odota napin painallusta ja näytä animaatio
+kentanLoppuOdotaNappia
+
+    ; Odotellaan ensin tovi
+    jsr ajanlaskentaNollaKello    
+    lda #$01
+kentanLoppuOdotaNappiaAlkuOdotusLoop
+    cmp $a1
+    bne kentanLoppuOdotaNappiaAlkuOdotusLoop
+
+    ; Painonappi näkyviin
+    lda $d015   ; Punainen ja musta näkyville
+    ora #$60
+    sta $d015
+    lda #$98    ; Nappianimaation sijainti
+    sta $d00a
+    sta $d00c
+    lda #$88
+    sta $d00b
+    sta $d00d
+
+    ; Animoidaan painonappia, kunnes joystickin nappia painetaan
+kentanLoppuOdotaNappiaAnimaatioLoop
+    lda $dc00                       ; Onko joystickin nappi pohjassa
+    and #$10
+    beq kentanLoppuNappiaPainettu
+    lda $a2                         ; Jos kelloa alemman tavun bitit 3-4 ovat 01, nappi alas. Muuten ylös.
+    and #$18
+    cmp #$08
+    beq kentanLoppuOdotaNappiaAnimaatioNappiAlas
+    lda #$15    ; Animaatio: nappi ylhäällä
+    sta $5ffe
+    lda #$16
+    sta $5ffd
+    jmp kentanLoppuOdotaNappiaAnimaatioLoop
+kentanLoppuOdotaNappiaAnimaatioNappiAlas
+    lda #$18    ; Animaatio: nappi alhaalla
+    sta $5ffe
+    lda #$17
+    sta $5ffd
+    jmp kentanLoppuOdotaNappiaAnimaatioLoop
+
+kentanLoppuNappiaPainettu
+    lda $d015   ; Piilota nappispritet
+    and #$bf
+    and #$df
+    sta $d015
+
+    ; Ikuinen loop
+ikuinenLoop
+    nop
+;    jmp ikuinenLoop
+
+    ; Uusi kenttä
+    inc $c025
+    jmp toimintaAloitaUusiKentta
+
+
+; Alifunktio: kopioi 8 tavua osoitteesta ($fb) osoitteeseen ($fd) toistaen x kertaa
+kentaLoppuKopioiMerkkiXKertaa
+    dex     ; Eka pois, koska loopataan (x-1):stä nollaan
+kentaLoppuKopioiMerkkiXKertaaLoop
+    ldy #07
+kentaLoppuKopioiMerkkiXKertaaLoopSisempi
     lda ($fb),Y
     sta ($fd),Y
     dey
-    bpl kentanLoppuTampaxiKopioiYTavuaLoop
+    bpl kentaLoppuKopioiMerkkiXKertaaLoopSisempi
+    dex     ; Lopetetaanko
+    bmi kentaLoppuKopioiMerkkiXKertaaPoistu
+    clc     ; Seuraava merkki kohdeosoitteelle
+    lda $fd
+    adc #$08
+    sta $fd
+    lda $fe
+    adc #$00
+    sta $fe
+    jmp kentaLoppuKopioiMerkkiXKertaaLoop
+kentaLoppuKopioiMerkkiXKertaaPoistu
+    rts
+
+; Alifunktio: kopioi y tavua osoiteesta ($fb) osoitteeseen ($fd)
+kentanLoppuKopioiYTavua
+    dey     ; Eka pois, koska loopataan (y-1):stä nollaan
+kentanLoppuKopioiYTavuaLoop
+    lda ($fb),Y
+    sta ($fd),Y
+    dey
+    bpl kentanLoppuKopioiYTavuaLoop
     rts
 
 ; Alifunktio kopioi 8 tavua osoiteesta ($fb) osoitteeseen ($fd)
-kentanLoppuTampaxiKopioi8Tavua
+kentanLoppuKopioi8Tavua
     ldy #$07    
-kentanLoppuTampaxiKopioi8TavuaLoop
+kentanLoppuKopioi8TavuaLoop
     lda ($fb),Y
     sta ($fd),Y
     dey
-    bpl kentanLoppuTampaxiKopioi8TavuaLoop
+    bpl kentanLoppuKopioi8TavuaLoop
     rts
 
-kentanLoppuTampaxiValmis
+; Tehdään kehys
+; Kohdeosoite grafiikkamuistissa oltava nollasivussa $fd-$fe
+; Kehyksen leveys osoitteessa $c000 ja korkeus $c001
+kentanLoppuTeeKehys
+    ; Otetaan alkuperäinen kohdeosoite talteen
+    lda $fd
+    sta $c002
+    lda $fe
+    sta $c003
     ; Kopioidaan kehyksen vasen yläkulma
-    lda #$d0    ; Kehyksen vasen yläkulma osoitteessa $10d0
+    lda #$d0
     sta $fb
     lda #$10
     sta $fc
-    lda #$50    ; Kehyksen vasen yläkulma tulee osoitteeseen $6a50
-    sta $fd
-    lda #$6a
-    sta $fe
-    jsr kentanLoppuTampaxiKopioi8Tavua
-
-    ; Kopioidaan kehyksen ylälaita seitsemän kertaa
-    lda #$d8    ; Kehyksen ylä osoitteessa $10d8
-    sta $fb
-    lda #$58    ; Lähtee osoitteesta $6a58
-    sta $fd
-    ldx #$06
-kentanLoppuTampaxiValmisLoop2a
-    jsr kentanLoppuTampaxiKopioi8Tavua
-    clc         ; Seuraava merkki
-    lda $fd
-    adc #$08
-    sta $fd
+    jsr kentanLoppuKopioi8Tavua
+    ; Kopioidaan vasen laita (korkeus-2) kertaa
+    ldx $c001
     dex
-    bpl kentanLoppuTampaxiValmisLoop2a
-
-    ; Kopioidaan kehyksen oikea yläkulma
-    lda #$e0    ; Kehyksen oikea yläkulma osoitteessa $10e0
-    sta $fb
-    lda #$90    ; Kehyksen oikea yläkulma tulee osoitteeseen $6a90
-    sta $fd
-    jsr kentanLoppuTampaxiKopioi8Tavua
-
-    ; Kopioidaan kehyksen vasen reuna kahdesti
+    dex
     lda #$e8    ; Kehyksen vasen reuna osoitteessa $10e8
     sta $fb
-    lda #$90    ; Kehyksen vasen reuna osoitteeseen $6b90
+kentanLoppuTeeKehysVasenLaitaLoop    
+    clc         ; Lisätään rivi kohdeosoitteeseen
+    lda $fd
+    adc #$40
     sta $fd
-    lda #$6b
+    lda $fe
+    adc #01
     sta $fe
-    jsr kentanLoppuTampaxiKopioi8Tavua    
-    lda #$d0    ; Kehyksen vasen reuna osoitteeseen $6cd0
-    sta $fd
-    lda #$6c
-    sta $fe
-    jsr kentanLoppuTampaxiKopioi8Tavua
-
-    ; Kopioidaan kehyksen oikea reuna kahdesti
-    lda #$f0    ; Kehyksen oikea reuna osoitteessa $10f0
-    sta $fb
-    lda #$d0    ; Kehyksen oikea reuna osoitteeseen $6bd0
-    sta $fd
-    lda #$6b
-    sta $fe
-    jsr kentanLoppuTampaxiKopioi8Tavua    
-    lda #$10    ; Kehyksen vasen reuna osoitteeseen $6d10
-    sta $fd
-    lda #$6d
-    sta $fe
-    jsr kentanLoppuTampaxiKopioi8Tavua
-
+    jsr kentanLoppuKopioi8Tavua
+    dex
+    bne kentanLoppuTeeKehysVasenLaitaLoop
     ; Kopioidaan kehyksen vasen alakulma
     lda #$f8    ; Kehyksen vasen alakulma osoitteessa $10f8
     sta $fb
-    lda #$10    ; Kehyksen vasen alakulma tulee osoitteeseen $6e10
+    clc         ; Seuraava kohderivi
+    lda $fd
+    adc #$40
     sta $fd
-    lda #$6e
+    lda $fe
+    adc #01
     sta $fe
-    jsr kentanLoppuTampaxiKopioi8Tavua
-
-    ; Kopioidaan kehyksen alalaita seitsemän kertaa
-    lda #$00    ; Kehyksen ala osoitteessa $1100
+    jsr kentanLoppuKopioi8Tavua
+    ; Kopioidaan kehyksen alalaita (leveys-2) kertaa
+    lda #$00    ; Kehyksen alalaidan merkki osoitteessa $1100
     sta $fb
     lda #$11
-    sta $fc    
-    lda #$18    ; Lähtee osoitteesta $6e18
+    sta $fc
+    ldx $c000   ; Laidan pituus (leveys-2)
+    dex
+    dex
+    clc         ; Kohdesoitteen seuraava merkki
+    lda $fd
+    adc #$08
     sta $fd
-    ldx #$06
-kentanLoppuTampaxiValmisLoop3
-    jsr kentanLoppuTampaxiKopioi8Tavua
+    lda $fe
+    adc #$00
+    sta $fe
+    jsr kentaLoppuKopioiMerkkiXKertaa
+    ; Kopioidaan kehyksen oikea alakulma
+    lda #$08    ; Kehyksen oikea alakulma osoitteessa $1108
+    sta $fb
+    clc         ; Kohdesoitteen seuraava merkki
+    lda $fd
+    adc #$08
+    sta $fd
+    lda $fe
+    adc #$00
+    sta $fe
+    jsr kentanLoppuKopioi8Tavua
+    ; Kopioidaan kehyksen ylälaita (leveys-2) kertaa
+    lda #$d8    ; Kehyksen ylälaidan merkki osoitteessa $10d8
+    sta $fb
+    lda #$10
+    sta $fc
+    ldx $c000   ; (leveys-2) kertaa
+    dex
+    dex
+    clc         ; Kohdeosoitteen alku ylälaidalle
+    lda $c002
+    adc #$08
+    sta $fd
+    lda $c003
+    adc #$00
+    sta $fe
+    jsr kentaLoppuKopioiMerkkiXKertaa
+    ; Kopioidaan kehyksen oikea yläkulma
     clc         ; Seuraava merkki
     lda $fd
     adc #$08
     sta $fd
-    dex
-    bpl kentanLoppuTampaxiValmisLoop3
-
-    ; Kopioidaan kehyksen oikea alakulma
-    lda #$08    ; Kehyksen oikea alakulma osoitteessa $1108
-    sta $fb
-    lda #$50    ; Kehyksen oikea alakulma tulee osoitteeseen $6e50
-    sta $fd
-    lda #$6e
+    lda $fe
+    adc #$00
     sta $fe
-    jsr kentanLoppuTampaxiKopioi8Tavua
+    lda #$e0    ; Kehyksen oikea yläkulma osoitteessa $10e0
+    sta $fb
+    jsr kentanLoppuKopioi8Tavua
+    ; Kopioidaan oikea laita (korkeus-2) kertaa
+    ldx $c001
+    dex
+    dex
+    lda #$f0    ; Kehyksen oikea reuna osoitteessa $10f0
+    sta $fb
+kentanLoppuTeeKehysOikeaLaitaLoop
+    clc         ; Lisätään rivi kohdeosoitteeseen
+    lda $fd
+    adc #$40
+    sta $fd
+    lda $fe
+    adc #01
+    sta $fe
+    jsr kentanLoppuKopioi8Tavua
+    dex
+    bne kentanLoppuTeeKehysOikeaLaitaLoop    
+
+    rts
+
+kentanLoppuTampaxiValmis
+    ; Tehdään kehys tekstille TAMPAXI VALMIS
+    ; Kehyksen vasemman yläkulman osoite: $6a50
+    lda #$50
+    sta $fd
+    lda #$6a
+    sta $fe
+    ; Kehyksen leveys ja korkeus: 9 ja 4 (teksti 7 ja 2)
+    lda #$09
+    sta $c000
+    lda #$04
+    sta $c001
+    jsr kentanLoppuTeeKehys
 
     ; Kopioidaan teksti TAMPAXI
     lda #$10    ; Alkaen osoitteesta $1110
     sta $fb
+    lda #$11
+    sta $fc
     lda #$98    ; Alkaen osoitteeseen $6ba0
     sta $fd
     lda #$6b
     sta $fe
     ldy #$38
-    jsr kentanLoppuTampaxiKopioiYTavua
+    jsr kentanLoppuKopioiYTavua
 
     ; Kopioidaan teksti VALMIS!
     lda #$48    ; Alkaen osoitteesta $1148
@@ -133,7 +250,7 @@ kentanLoppuTampaxiValmisLoop3
     lda #$6c
     sta $fe
     ldy #$38
-    jsr kentanLoppuTampaxiKopioiYTavua
+    jsr kentanLoppuKopioiYTavua
 
     ; Värit tauluun
     lda #$71    ; Keltainen ja valkea
@@ -213,17 +330,9 @@ kentanLoppuValmis
 
     jsr kentanLoppuTampaxiValmis
 
-    ldx #$00
-kentanLoppuAjantuhlausLoop
-    ldy #$00
-kentanLoppuAjantuhlausLoopSisempi
-    lda $c020
-    iny
-    cpy #$ff
-    bne kentanLoppuAjantuhlausLoopSisempi
-    inx
-    cpx #$ff
-    bne kentanLoppuAjantuhlausLoop
+    jsr kentanLoppuOdotaNappia
+
+    
     nop
 
     jmp luntaKentalle

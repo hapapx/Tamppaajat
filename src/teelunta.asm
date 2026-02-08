@@ -158,9 +158,13 @@ grafiikkaarvoluuppi
     dey
     bpl grafiikkaarvoluuppi
 
-; Luo y kappaletta lumia, osa voi olla samoissa kohdissa
-    ldy #$10 ; kpl lumitäpliä
-    sty $c00a
+; Luo lunta kentän numero × $10 kpl, osa voi olla samoissa kohdissa
+    lda $c025
+    asl
+    asl
+    asl
+    asl
+    sta $c00a
 lumenluontiluuppi
     ; Arvotaan rivejä
     ; Lisätään satunnaislukuja x kpl, jotta saadaan lähes normaalijakauma
@@ -200,9 +204,6 @@ ylarajaokR
     sta $fd ; Tallenna rivin numeroksi
 
     jmp sarakearvonta
-lumenluontiluuppivaliaskel ; Väliaskel, koska luupin alku niin kaukana
-    jsr lumenluontiluuppi
-    rts
 
 sarakearvonta
     ; Arvotaan sarakkeita
@@ -247,12 +248,14 @@ ylarajaokS
     ldy $c00a
     dey
     sty $c00a
-    bne lumenluontiluuppivaliaskel
+    beq lumenluontiluuppiOhi
+    jmp lumenluontiluuppi
 
 ; --------------------------------------------------------
 ; Laitellaan lunta nätimmäksi
 ; --------------------------------------------------------
 
+lumenluontiluuppiOhi
 ; Loopataan näyttömuistin ($5c00-) kenttäalueen läpi
 ; $c000 ja $c001 pitävät kirjaa missä mennään
     lda #$28; Alkuna toinen rivi
@@ -1058,4 +1061,4 @@ teeluntaEdistymispalkinPykälät
     lda #$02
     sta $c024
     
-    jmp spriteliiketestiAlku ; Valmista, poistu
+    rts; jmp spriteliiketestiAlku ; Valmista, poistu
