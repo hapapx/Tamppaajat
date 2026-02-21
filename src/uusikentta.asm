@@ -110,7 +110,7 @@ uusiKenttaNumeroAlleKymmenen
     sta $fd
 uusiKenttaNumeroKopioiYlempi
     ldy #$07    ; Kopioidaan numero
-    uusiKenttaNumeroLoop
+uusiKenttaNumeroLoop
     lda ($fb),Y
     sta $7668,y
     dey

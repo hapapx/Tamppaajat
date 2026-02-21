@@ -3,9 +3,9 @@ kentanLoppuOdotaNappia
 
     ; Odotellaan ensin tovi
     jsr ajanlaskentaNollaKello    
-    lda #$01
+    lda #$a0
 kentanLoppuOdotaNappiaAlkuOdotusLoop
-    cmp $a1
+    cmp $a2
     bne kentanLoppuOdotaNappiaAlkuOdotusLoop
 
     ; Painonappi näkyviin
@@ -46,15 +46,7 @@ kentanLoppuNappiaPainettu
     and #$df
     sta $d015
 
-    ; Ikuinen loop
-ikuinenLoop
-    nop
-;    jmp ikuinenLoop
-
-    ; Uusi kenttä
-    inc $c025
-    jmp toimintaAloitaUusiKentta
-
+    rts ; Paluu
 
 ; Alifunktio: kopioi 8 tavua osoitteesta ($fb) osoitteeseen ($fd) toistaen x kertaa
 kentaLoppuKopioiMerkkiXKertaa
@@ -327,12 +319,81 @@ kentanLoppuKokoKenttäHarmaaksiLoppu
 kentanLoppuValmis
 
     jsr kentanLoppuKokoKenttäHarmaaksi
-
     jsr kentanLoppuTampaxiValmis
-
     jsr kentanLoppuOdotaNappia
 
-    
-    nop
+    inc $c025   ; Seuraava kenttä
+    jmp toimintaAloitaUusiKentta
 
-    jmp luntaKentalle
+; --------------------------------------------------------------------------
+
+kentanLoppuAikaLoppui
+
+    jsr kentanLoppuKokoKenttäHarmaaksi
+    jsr kentanLoppuAikaLoppuiTeksti
+    jsr kentanLoppuOdotaNappia
+    
+    lda #$01
+    sta $c025   ; Kenttä 1
+    jmp toimintaAloitaUusiKentta
+
+kentanLoppuAikaLoppuiTeksti
+    ; Tehdään kehys tekstille AIKA LOPPUI!
+    ; Kehyksen vasemman yläkulman osoite: $6a50
+    lda #$50
+    sta $fd
+    lda #$6a
+    sta $fe
+    ; Kehyksen leveys ja korkeus: 8 ja 4 (teksti 6 ja 2)
+    lda #$08
+    sta $c000
+    lda #$04
+    sta $c001
+    jsr kentanLoppuTeeKehys
+
+    ; Kopioidaan teksti AIKA (ja yksi tyhjä kummallakin puolen)
+    lda #$d0    ; Alkaen osoitteesta $11d0
+    sta $fb
+    lda #$11
+    sta $fc
+    lda #$98    ; Alkaen osoitteeseen $6ba0
+    sta $fd
+    lda #$6b
+    sta $fe
+    ldy #$30
+    jsr kentanLoppuKopioiYTavua
+
+    ; Kopioidaan teksti LOPPUI!
+    lda #$00    ; Alkaen osoitteesta $1200
+    sta $fb
+    lda #$12
+    sta $fc
+    lda #$d8    ; Alkaen osoitteeseen $6cd8
+    sta $fd
+    lda #$6c
+    sta $fe
+    ldy #$30
+    jsr kentanLoppuKopioiYTavua
+
+    ; Värit tauluun
+    lda #$71    ; Keltainen ja valkea
+    ldy #$07
+kentanLoppuTaulunVäritAikaLoppuiLoop
+    sta $5d4a,y
+    sta $5dc2,y
+    dey
+    bpl kentanLoppuTaulunVäritAikaLoppuiLoop
+    sta $5d72   ; Vasen laita
+    sta $5d9a
+    sta $5d79   ; Oikea laita
+    sta $5da1
+    ; Värit tekstiin
+    lda #$01    ; Valkea ja musta
+    ldy #$05
+kentanLoppuTaulunVäritAikaLoppuiLoop2
+    sta $5d73,y
+    sta $5d9b,y
+    dey
+    bpl kentanLoppuTaulunVäritAikaLoppuiLoop2
+
+    rts; Paluu

@@ -255,6 +255,10 @@ ylarajaokS
 ; Laitellaan lunta nätimmäksi
 ; --------------------------------------------------------
 
+ikuinenLooppi
+    nop
+    jmp ikuinenLooppi
+
 lumenluontiluuppiOhi
 ; Loopataan näyttömuistin ($5c00-) kenttäalueen läpi
 ; $c000 ja $c001 pitävät kirjaa missä mennään

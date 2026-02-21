@@ -44,9 +44,9 @@ paivitaPeittoPalkinpykälät
     lda #$75                            ; Värjää merkki. 
     sta ($fd),y
     iny
-    cpy #$02 ;#$08
+    cpy #$08
     bne paivitaPeittoPalkinpykälät      ; Seuraava, jos palkki ei ole täynnä
-    jmp kentanLoppuValmis               ; Tässä kenttä loppuisi    
+    jmp kentanLoppuValmis               ; Palkki täynnä, kenttä valmis  
     
 paivitaPeittoAloitetaanAlusta
     ; Nollataan laskuri
@@ -62,4 +62,4 @@ paivitaPeittoSeuraavaRivi
     inc $c024
 
 paivitaPeittoPoistu
-    rts
+    jmp toimintaPaluuPeitonPaivityksesta

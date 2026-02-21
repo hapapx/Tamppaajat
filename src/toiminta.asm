@@ -15,6 +15,16 @@ toimintaAloitaUusiKentta
     ; Luodaan lunta kentän tasoa vastaava määrä
     jsr luntaKentalle
 
+    ; Nollataan edistysmittari ja täytetään aikamittari
+    ldy #$07
+toimintaNollaaEdistysLoop
+    lda #$70
+    sta $5f3e,y
+    lda #$72
+    sta $5fb6,y
+    dey
+    bpl toimintaNollaaEdistysLoop
+
 spriteliiketestiAlku
     lda #$00    ; Animaation vaihe nollaksi
     sta $9000
@@ -776,9 +786,11 @@ liiku
     jsr jalanjaljet
 
     ; Päivitä tampatun lumen määrä
-    jsr paivitaPeitto
+    jmp paivitaPeitto
 
+toimintaPaluuPeitonPaivityksesta
     ; Päivitä aika
-    jsr ajanlaskentaPäivitäPalkki
+    jmp ajanlaskentaPäivitäPalkki
 
+toimintaPaluuAjanPaivityksesta
     jmp spriteliikeAlku
