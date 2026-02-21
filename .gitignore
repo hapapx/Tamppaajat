@@ -6,3 +6,4 @@ build/Tamppaajat.report
 .vscode
 Old
 project-config.json
+.gitignore
